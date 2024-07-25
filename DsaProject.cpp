@@ -1,107 +1,182 @@
 #include <iostream>
 
-// Define the BST node structure
+using namespace std;
+
 struct TreeNode {
-    int data;
-    TreeNode* left;
-    TreeNode* right;
-    TreeNode(int val) : data(val), left(nullptr), right(nullptr) {}
+    int key;
+    TreeNode *left, *right;
+    
+    TreeNode(int key) {
+        this->key = key;
+        this->left = this->right = nullptr;
+    }
 };
 
-// Function to insert a value into the BST
-TreeNode* insert(TreeNode* root, int val) {
-    if (!root) {
-        return new TreeNode(val);
+class BST {
+public:
+    TreeNode* root;
+    
+    BST() {
+        root = nullptr;
     }
-    if (val < root->data) {
-        root->left = insert(root->left, val);
-    } else {
-        root->right = insert(root->right, val);
-    }
-    return root;
-}
-
-// Function to search for a value in the BST
-bool search(TreeNode* root, int val) {
-    if (!root) {
-        return false;
-    }
-    if (root->data == val) {
-        return true;
-    } else if (val < root->data) {
-        return search(root->left, val);
-    } else {
-        return search(root->right, val);
-    }
-}
-
-// Function to find the minimum value node in a BST
-TreeNode* findMin(TreeNode* root) {
-    while (root->left) {
-        root = root->left;
-    }
-    return root;
-}
-
-// Function to delete a value from the BST
-TreeNode* deleteNode(TreeNode* root, int val) {
-    if (!root) {
-        return nullptr;
-    }
-    if (val < root->data) {
-        root->left = deleteNode(root->left, val);
-    } else if (val > root->data) {
-        root->right = deleteNode(root->right, val);
-    } else {
-        if (!root->left) {
-            TreeNode* temp = root->right;
-            delete root;
-            return temp;
-        } else if (!root->right) {
-            TreeNode* temp = root->left;
-            delete root;
-            return temp;
+    
+    // Insert a node
+    TreeNode* insert(TreeNode* node, int key) {
+        if (node == nullptr) {
+            return new TreeNode(key);
         }
-        TreeNode* minRight = findMin(root->right);
-        root->data = minRight->data;
-        root->right = deleteNode(root->right, minRight->data);
+        
+        if (key < node->key) {
+            node->left = insert(node->left, key);
+        } else if (key > node->key) {
+            node->right = insert(node->right, key);
+        }
+        
+        return node;
     }
-    return root;
-}
-
-// In-order traversal (left-root-right)
-void inOrderTraversal(TreeNode* root) {
-    if (root) {
-        inOrderTraversal(root->left);
-        std::cout << root->data << " ";
-        inOrderTraversal(root->right);
+    
+    void insert(int key) {
+        root = insert(root, key);
     }
-}
+    
+    // Search for a node
+    TreeNode* search(TreeNode* node, int key) {
+        if (node == nullptr || node->key == key) {
+            return node;
+        }
+        
+        if (key < node->key) {
+            return search(node->left, key);
+        } else {
+            return search(node->right, key);
+        }
+    }
+    
+    TreeNode* search(int key) {
+        return search(root, key);
+    }
+    
+    // Delete a node
+    TreeNode* deleteNode(TreeNode* root, int key) {
+        if (root == nullptr) return root;
+        
+        if (key < root->key) {
+            root->left = deleteNode(root->left, key);
+        } else if (key > root->key) {
+            root->right = deleteNode(root->right, key);
+        } else {
+            if (root->left == nullptr) {
+                TreeNode* temp = root->right;
+                delete root;
+                return temp;
+            } else if (root->right == nullptr) {
+                TreeNode* temp = root->left;
+                delete root;
+                return temp;
+            }
+            
+            TreeNode* temp = minValueNode(root->right);
+            root->key = temp->key;
+            root->right = deleteNode(root->right, temp->key);
+        }
+        
+        return root;
+    }
+    
+    void deleteNode(int key) {
+        root = deleteNode(root, key);
+    }
+    
+    TreeNode* minValueNode(TreeNode* node) {
+        TreeNode* current = node;
+        
+        while (current && current->left != nullptr) {
+            current = current->left;
+        }
+        
+        return current;
+    }
+    
+    // InOrder Traversal
+    void inorder(TreeNode* root) {
+        if (root != nullptr) {
+            inorder(root->left);
+            cout << root->key << " ";
+            inorder(root->right);
+        }
+    }
+    
+    void inorder() {
+        inorder(root);
+        cout << endl;
+    }
+    
+    // PreOrder Traversal
+    void preorder(TreeNode* root) {
+        if (root != nullptr) {
+            cout << root->key << " ";
+            preorder(root->left);
+            preorder(root->right);
+        }
+    }
+    
+    void preorder() {
+        preorder(root);
+        cout << endl;
+    }
+    
+    // PostOrder Traversal
+    void postorder(TreeNode* root) {
+        if (root != nullptr) {
+            postorder(root->left);
+            postorder(root->right);
+            cout << root->key << " ";
+        }
+    }
+    
+    void postorder() {
+        postorder(root);
+        cout << endl;
+    }
+};
 
 int main() {
-    TreeNode* root = nullptr;
-
-    // Insert values into the BST
-    root = insert(root, 10);
-    root = insert(root, 5);
-    root = insert(root, 15);
-    root = insert(root, 3);
-    root = insert(root, 7);
-
-    // Search for a value
-    std::cout << "Search for 7: " << (search(root, 7) ? "Found" : "Not found") << std::endl;
-
-    // Delete a value
-    root = deleteNode(root, 5);
-
-    // In-order traversal
-    std::cout << "In-order traversal: ";
-    inOrderTraversal(root);
-    std::cout << std::endl;
-
-    // Clean up memory (optional)
-    // You can add a function to delete the entire tree recursively
-
+    BST tree;
+    
+    tree.insert(50);
+    tree.insert(30);
+    tree.insert(20);
+    tree.insert(40);
+    tree.insert(70);
+    tree.insert(60);
+    tree.insert(80);
+    
+    cout << "InOrder traversal: ";
+    tree.inorder();
+    
+    cout << "PreOrder traversal: ";
+    tree.preorder();
+    
+    cout << "PostOrder traversal: ";
+    tree.postorder();
+    
+    cout << "\nSearch for 40: " << (tree.search(40) ? "Found" : "Not Found") << endl;
+    cout << "Search for 90: " << (tree.search(90) ? "Found" : "Not Found") << endl;
+    
+    cout << "\nDelete 20\n";
+    tree.deleteNode(20);
+    cout << "InOrder traversal: ";
+    tree.inorder();
+    
+    cout << "\nDelete 30\n";
+    tree.deleteNode(30);
+    cout << "InOrder traversal: ";
+    tree.inorder();
+    
+    cout << "\nDelete 50\n";
+    tree.deleteNode(50);
+    cout << "InOrder traversal: ";
+    tree.inorder();
+    
     return 0;
 }
-
